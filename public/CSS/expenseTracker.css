@@ -628,6 +628,23 @@ li button {
 }
 
 /* report css */
+.report-header{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.report-heading{
+  width: 90%;
+}
+.download-btn{
+  color: white;
+  background-color: #0F766E;
+  border-style: none;
+  width: 100px;
+  height: 4vh;
+  margin: 30px;
+  border-radius: .5rem;
+}
 #reportContainer {
   padding: 16px;
 }

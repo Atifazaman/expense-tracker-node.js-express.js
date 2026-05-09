@@ -568,10 +568,31 @@ function renderMonthlyReport(container, transactions) {
   let grandIncome = 0;
   let grandExpense = 0;
 
-  const heading = document.createElement("h2");
-  heading.classList.add("report-heading");
-  heading.textContent = "📅 Monthly Report";
-  container.appendChild(heading);
+const headerDiv = document.createElement("div");
+headerDiv.classList.add("report-header");
+
+const heading = document.createElement("h2");
+heading.classList.add("report-heading");
+heading.textContent = "📅 Monthly Report";
+
+const downloadBtn = document.createElement("button");
+downloadBtn.textContent = "Download";
+downloadBtn.classList.add("download-btn");
+
+downloadBtn.addEventListener("click", async () => {
+  downloadBtn.textContent = "Downloading...";
+  downloadBtn.disabled = true;
+
+  await downloadReport("monthly");
+
+  downloadBtn.textContent = "Download";
+  downloadBtn.disabled = false;
+});
+
+headerDiv.appendChild(heading);
+headerDiv.appendChild(downloadBtn);
+
+container.appendChild(headerDiv);
 
   const table = document.createElement("table");
   table.classList.add("report-table");
@@ -733,10 +754,31 @@ function renderYearlyReport(container, transactions) {
   let grandIncome = 0;
   let grandExpense = 0;
 
-  const heading = document.createElement("h2");
-  heading.classList.add("report-heading");
-  heading.textContent = "📊 Yearly Report";
-  container.appendChild(heading);
+ const headerDiv = document.createElement("div");
+headerDiv.classList.add("report-header");
+
+const heading = document.createElement("h2");
+heading.classList.add("report-heading");
+heading.textContent = "📊 Yearly Report";
+
+const downloadBtn = document.createElement("button");
+downloadBtn.textContent = "Download";
+downloadBtn.classList.add("download-btn");
+
+downloadBtn.addEventListener("click", async () => {
+  downloadBtn.textContent = "Downloading...";
+  downloadBtn.disabled = true;
+
+  await downloadReport("yearly");
+
+  downloadBtn.textContent = "Download";
+  downloadBtn.disabled = false;
+});
+
+headerDiv.appendChild(heading);
+headerDiv.appendChild(downloadBtn);
+
+container.appendChild(headerDiv);
 
   const table = document.createElement("table");
   table.classList.add("report-table");
@@ -916,3 +958,30 @@ noteBtn.addEventListener("click", async () => {
     console.log(error);
   }
 });
+async function downloadReport(type) {
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await axios.get(
+      `http://localhost:3000/expensetracker/download-report?filter=${type}&date=${currentDate.getTime()}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (res.status === 200) {
+      const fileUrl = res.data.fileUrl;
+
+      const a = document.createElement("a");
+      a.href = fileUrl;
+      const fileName = fileUrl.split("/").pop(); // get actual file name
+      a.download = fileName || `${type}-report.csv`;
+      a.click();
+    }
+  } catch (error) {
+    console.log(error);
+    alert("Download failed");
+  }
+}

@@ -7,6 +7,8 @@ const router = express.Router();
 router.post("/create-order", auth, createOrder); // 👈 FIXED
 router.get("/verify/:order_id", auth, verifyPayment);
 
+router.get("/status/:order_id", auth, getPaymentStatus); 
+
 router.post("/webhook", webhook);
 
 router.get("/status/:order_id", getPaymentStatus);

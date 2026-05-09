@@ -1,6 +1,7 @@
 const sequelize = require("../Utils/db-connection");
 const expensetable=require("../Models/expensetrackertable")
 const { Notes } = require("../Models");
+const uploadToS3 = require("../services/s3Services");
 
 const { Op } = require("sequelize");
 
@@ -233,6 +234,53 @@ const getNote=async(req,res,next)=>{
      next(error);
   }
 }
+
+const downloadReport = async (req, res) => {
+  try {
+    const { filter, date } = req.query;
+    const userId = req.user.id;
+
+   const selectedDate = new Date(Number(date));
+const y = selectedDate.getFullYear();
+const m = selectedDate.getMonth();
+const d = selectedDate.getDate();
+
+let startDate, endDate;
+
+if (filter === "monthly") {
+  startDate = new Date(y, m, 1);
+  endDate = new Date(y, m + 1, 0, 23, 59, 59, 999);
+} else if (filter === "yearly") {
+  startDate = new Date(y, 0, 1);
+  endDate = new Date(y, 11, 31, 23, 59, 59, 999);
+}
+
+    const expenses = await expensetable.findAll({
+      where: {
+        userId,
+        createdAt: {
+          [Op.between]: [startDate, endDate],
+        },
+      },
+    });
+
+    let csv = "Date,Title,Category,Type,Amount\n";
+
+    expenses.forEach((e) => {
+      csv += `${e.createdAt},${e.title},${e.category},${e.typeSelect},${e.amount}\n`;
+    });
+
+    const fileName = `Expense_${userId}_${Date.now()}.csv`;
+
+    const fileUrl = await uploadToS3(csv, fileName);
+
+    res.status(200).json({ fileUrl });
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Download failed" });
+  }
+};
 module.exports={
     addlist,
     getlist,
@@ -240,5 +288,6 @@ module.exports={
     deletelist,
     getTotals,
     createNote,
-    getNote
+    getNote,
+    downloadReport
 }
