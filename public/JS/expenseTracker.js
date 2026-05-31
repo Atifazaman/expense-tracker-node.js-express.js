@@ -4,7 +4,6 @@ const addBtn = document.getElementById("addBtn");
 const formCloseBtn = document.getElementById("formCloseBtn");
 const penBtn = document.getElementById("penBtn");
 const noteBtn = document.getElementById("noteBtn");
-
 const form = document.getElementById("form");
 const titleInput = document.getElementById("title");
 const categorySelect = document.getElementById("categorySelect");
@@ -19,31 +18,15 @@ const rightBtn = document.getElementById("rightBtnIcon");
 const incomeContainer = document.querySelector(".incomeDateList");
 const expenseContainer = document.querySelector(".expenseDateList");
 const searchInput = document.getElementById("searchInput");
-let searchQuery = "";
 const suggestionsBox = document.getElementById("suggestionsBox");
-
 const incomePrevBtn = document.getElementById("incomePrevBtn");
 const incomeNextBtn = document.getElementById("incomeNextBtn");
 const incomePageInfo = document.getElementById("incomePageInfo");
-
 const expensePrevBtn = document.getElementById("expensePrevBtn");
 const expenseNextBtn = document.getElementById("expenseNextBtn");
 const expensePageInfo = document.getElementById("expensePageInfo");
-let currentFilter = "daily";
-let currentDate = new Date();
-let selectedExpenseId = null;
-function formatDate(date) {
-  return date.toISOString().split("T")[0];
-}
-selectedDate = formatDate(currentDate);
-let incomeCurrentPage = 1;
-let expenseCurrentPage = 1;
-let incomeTotalPages = 1;
-let expenseTotalPages = 1;
 
-function getLimit() {
-  return Number(document.getElementById("rowPerPage").value) || 5;
-}
+const BASE_URL = "http://localhost:3000/expensetracker";
 
 const categoryIcons = {
   food: "🍔",
@@ -59,6 +42,27 @@ const categoryIcons = {
   others: "📦",
 };
 
+let searchQuery = "";
+let currentFilter = "daily";
+let currentDate = new Date();
+let selectedExpenseId = null;
+let incomeCurrentPage = 1;
+let expenseCurrentPage = 1;
+let incomeTotalPages = 1;
+let expenseTotalPages = 1;
+let selectedDate = formatDate(currentDate);
+let editId = null;
+
+
+function formatDate(date) {
+  return date.toISOString().split("T")[0];
+}
+function getLimit() {
+  return Number(document.getElementById("rowPerPage").value) || 5;
+}
+
+
+// Daily, Monthly, Yearly Filter Type Starts Here
 filterType.addEventListener("change", () => {
   const token = localStorage.getItem("token");
   const payload = JSON.parse(atob(token.split(".")[1]));
@@ -89,10 +93,10 @@ filterType.addEventListener("change", () => {
   updateDateUI();
   loadData();
 });
+// Daily, Monthly, Yearly Filter Type Ends Here
 
-const BASE_URL = "http://localhost:3000/expensetracker";
-let editId = null;
 
+// Create List Starts Here
 function createList(data) {
   const li = document.createElement("li");
 
@@ -141,7 +145,10 @@ function createList(data) {
     ulExpense.appendChild(li);
   }
 }
+// Create List Ends Here
 
+
+// Load Data Starts Here
 async function loadData() {
   try {
     const token = localStorage.getItem("token");
@@ -185,7 +192,6 @@ async function loadData() {
     const query = (searchQuery || "").toLowerCase();
     showSuggestions(allTransactions, query);
 
-    // Reset lists
     ulIncome.innerHTML = "";
     ulExpense.innerHTML = "";
 
@@ -221,7 +227,6 @@ async function loadData() {
     if (currentFilter === "monthly" || currentFilter === "yearly") {
       incomeConBar.style.display = "none";
       expenseConBar.style.display = "none";
-      // For reports, merge all transactions from both calls
       renderReport({ transactions: allTransactions });
     } else {
       document.getElementById("reportContainer").style.display = "none";
@@ -230,7 +235,10 @@ async function loadData() {
     console.log(error);
   }
 }
+// Load Data Ends Here
 
+
+//DOMContent Starts Here
 window.addEventListener("DOMContentLoaded", () => {
   const token = localStorage.getItem("token");
 
@@ -256,13 +264,10 @@ window.addEventListener("DOMContentLoaded", () => {
   updateDateUI();
   loadData();
 });
+// DOMContent Ends Here
 
-document.getElementById("rowPerPage").addEventListener("change", () => {
-  incomeCurrentPage = 1;
-  expenseCurrentPage = 1;
-  loadData();
-});
 
+// List Add Starts Here
 async function add(obj) {
   try {
     formContainer.style.display = "none";
@@ -278,6 +283,10 @@ async function add(obj) {
     console.log(error);
   }
 }
+// List Add Ends Here
+
+
+// List Update Starts Here
 async function update(obj) {
   try {
     const token = localStorage.getItem("token");
@@ -294,7 +303,10 @@ async function update(obj) {
     console.log(error);
   }
 }
+// List Update Ends Here
 
+
+// Form Submit Handling Starts Here
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const expenseIncomeSelect = e.target.expenseIncome.value;
@@ -316,7 +328,10 @@ form.addEventListener("submit", async (e) => {
   }
   form.reset();
 });
+//Form Submit Handling Ends Here
 
+
+//Edit Btn and Delete Btn List Starts Here
 document.body.addEventListener("click", async (e) => {
   const li = e.target.closest("li");
   if (!li) return;
@@ -350,7 +365,10 @@ document.body.addEventListener("click", async (e) => {
     editId = id;
   }
 });
+//Edit Btn and Delete Btn List Ends Here
 
+
+//Plus Btn and Form Close Btn Starts Here 
 PlusBtn.addEventListener("click", () => {
   formContainer.style.display = "flex";
   addBtn.textContent = "Add";
@@ -363,7 +381,10 @@ formCloseBtn.addEventListener("click", () => {
   form.expenseIncome.disabled = false;
   editId = null;
 });
+//Plus Btn and Form Close Btn Ends Here
 
+
+// Date Bar Section Ends Here
 function updateDateUI() {
   const day = currentDate.getDate();
   const month = currentDate.toLocaleString("default", { month: "long" });
@@ -417,16 +438,25 @@ rightBtn.addEventListener("click", async () => {
   await loadData();
   await loadNoteByDate();
 });
+//Date Bar Section Ends Here 
 
+
+// Search Starts here
 searchInput.addEventListener("input", (e) => {
   searchQuery = e.target.value.toLowerCase();
   incomeCurrentPage = 1;
   expenseCurrentPage = 1;
   loadData();
 });
+// Search Ends here
 
+
+// category Ai suggestion Starts Here
 function showSuggestions(data, query) {
-  if (!query) return;
+  if (!query) {
+  suggestionsBox.innerHTML = "";
+  return;
+}
 
   suggestionsBox.innerHTML = "";
 
@@ -474,8 +504,32 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// cashfree
+let timer;
 
+titleInput.addEventListener("input", () => {
+  clearTimeout(timer);
+
+  timer = setTimeout(async () => {
+    const title = titleInput.value;
+    if (!title) return;
+
+    const res = await axios.get(
+      `http://localhost:3000/ai/suggest-category?title=${title}`,
+    );
+
+    const aiCategory = res.data.category;
+
+    if (aiCategory) {
+      categorySelect.value = aiCategory;
+      aiText.textContent = "AI suggests: " + aiCategory;
+    }
+  }, 400);
+});
+
+//Category Ai Suggestion Ends Here
+
+
+// Buy Premium Ends Here
 const buyPremiumBtn = document.getElementById("buyPremiumBtn");
 
 buyPremiumBtn.addEventListener("click", async () => {
@@ -510,29 +564,108 @@ function showPremiumMessage() {
   const msg = document.getElementById("premiumMessage");
   if (msg) msg.style.display = "block";
 }
+// Buy Premium Ends Here
 
-// category Ai suggestion
-let timer;
 
-titleInput.addEventListener("input", () => {
-  clearTimeout(timer);
-
-  timer = setTimeout(async () => {
-    const title = titleInput.value;
-    if (!title) return;
-
-    const res = await axios.get(
-      `http://localhost:3000/ai/suggest-category?title=${title}`,
-    );
-
-    const aiCategory = res.data.category;
-
-    if (aiCategory) {
-      categorySelect.value = aiCategory;
-      aiText.textContent = "AI suggests: " + aiCategory;
-    }
-  }, 400);
+// Pagination Start Here
+document.getElementById("rowPerPage").addEventListener("change", () => {
+  incomeCurrentPage = 1;
+  expenseCurrentPage = 1;
+  loadData();
 });
+
+incomePrevBtn.addEventListener("click", () => {
+  if (incomeCurrentPage > 1) {
+    incomeCurrentPage--;
+    loadData();
+  }
+});
+
+incomeNextBtn.addEventListener("click", () => {
+  if (incomeCurrentPage < incomeTotalPages) {
+    incomeCurrentPage++;
+    loadData();
+  }
+});
+
+expensePrevBtn.addEventListener("click", () => {
+  if (expenseCurrentPage > 1) {
+    expenseCurrentPage--;
+    loadData();
+  }
+});
+
+expenseNextBtn.addEventListener("click", () => {
+  if (expenseCurrentPage < expenseTotalPages) {
+    expenseCurrentPage++;
+    loadData();
+  }
+});
+// Pagination Ends Here
+
+
+// Note starts here
+
+async function loadNoteByDate() {
+  try {
+    const token = localStorage.getItem("token");
+    const date = formatDate(currentDate);
+    const res = await axios.get(`${BASE_URL}/get-note?date=${date}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const noteTextEl = document.getElementById("note");
+
+    if (res.data && res.data.length > 0) {
+      noteTextEl.value = res.data[0].note;
+    } else {
+      noteTextEl.value = "";
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+penBtn.addEventListener("click", async () => {
+  const writingPage = document.getElementById("writingPage");
+  PlusBtn.style.display = PlusBtn.style.display === "none" ? "block" : "none";
+  expenseConBar.style.display =
+    expenseConBar.style.display === "none" ? "block" : "none";
+  incomeConBar.style.display =
+    incomeConBar.style.display === "none" ? "block" : "none";
+  writingPage.style.display =
+    writingPage.style.display === "none" ? "flex" : "none";
+
+  await loadNoteByDate();
+});
+
+noteBtn.addEventListener("click", async () => {
+  try {
+    const noteText = document.getElementById("note").value;
+    const token = localStorage.getItem("token");
+    const today = new Date().toISOString().split("T")[0];
+    const res = await axios.post(
+      `${BASE_URL}/create-note`,
+      { noteText, date: today },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    const data = res.data;
+    console.log(data);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+// Notes Ends Here
+
+
+// Report Starts Here
 
 function renderReport(data) {
   const container = document.getElementById("reportContainer");
@@ -568,36 +701,35 @@ function renderMonthlyReport(container, transactions) {
   let grandIncome = 0;
   let grandExpense = 0;
 
-const headerDiv = document.createElement("div");
-headerDiv.classList.add("report-header");
+  const headerDiv = document.createElement("div");
+  headerDiv.classList.add("report-header");
 
-const heading = document.createElement("h2");
-heading.classList.add("report-heading");
-heading.textContent = "📅 Monthly Report";
+  const heading = document.createElement("h2");
+  heading.classList.add("report-heading");
+  heading.textContent = "📅 Monthly Report";
 
-const downloadBtn = document.createElement("button");
-downloadBtn.textContent = "Download";
-downloadBtn.classList.add("download-btn");
-
-downloadBtn.addEventListener("click", async () => {
-  downloadBtn.textContent = "Downloading...";
-  downloadBtn.disabled = true;
-
-  await downloadReport("monthly");
-
+  const downloadBtn = document.createElement("button");
   downloadBtn.textContent = "Download";
-  downloadBtn.disabled = false;
-});
+  downloadBtn.classList.add("download-btn");
 
-headerDiv.appendChild(heading);
-headerDiv.appendChild(downloadBtn);
+  downloadBtn.addEventListener("click", async () => {
+    downloadBtn.textContent = "Downloading...";
+    downloadBtn.disabled = true;
 
-container.appendChild(headerDiv);
+    await downloadReport("monthly");
+
+    downloadBtn.textContent = "Download";
+    downloadBtn.disabled = false;
+  });
+
+  headerDiv.appendChild(heading);
+  headerDiv.appendChild(downloadBtn);
+
+  container.appendChild(headerDiv);
 
   const table = document.createElement("table");
   table.classList.add("report-table");
 
-  // thead
   const thead = document.createElement("thead");
   const theadRow = document.createElement("tr");
   theadRow.classList.add("report-thead-row");
@@ -657,7 +789,6 @@ container.appendChild(headerDiv);
     grandIncome += dateIncome;
     grandExpense += dateExpense;
 
-    // subtotal row
     const subtotalTr = document.createElement("tr");
     subtotalTr.classList.add("report-subtotal-row");
 
@@ -685,7 +816,6 @@ container.appendChild(headerDiv);
     tbody.appendChild(subtotalTr);
   });
 
-  // grand total
   const totalTr = document.createElement("tr");
   totalTr.classList.add("report-total-row");
 
@@ -705,7 +835,6 @@ container.appendChild(headerDiv);
   totalTr.append(totalLabel, totalIncomeCell, totalExpenseCell);
   tbody.appendChild(totalTr);
 
-  // savings
   const savings = grandIncome - grandExpense;
   const savingsTr = document.createElement("tr");
   savingsTr.classList.add("report-savings-row");
@@ -754,36 +883,35 @@ function renderYearlyReport(container, transactions) {
   let grandIncome = 0;
   let grandExpense = 0;
 
- const headerDiv = document.createElement("div");
-headerDiv.classList.add("report-header");
+  const headerDiv = document.createElement("div");
+  headerDiv.classList.add("report-header");
 
-const heading = document.createElement("h2");
-heading.classList.add("report-heading");
-heading.textContent = "📊 Yearly Report";
+  const heading = document.createElement("h2");
+  heading.classList.add("report-heading");
+  heading.textContent = "📊 Yearly Report";
 
-const downloadBtn = document.createElement("button");
-downloadBtn.textContent = "Download";
-downloadBtn.classList.add("download-btn");
-
-downloadBtn.addEventListener("click", async () => {
-  downloadBtn.textContent = "Downloading...";
-  downloadBtn.disabled = true;
-
-  await downloadReport("yearly");
-
+  const downloadBtn = document.createElement("button");
   downloadBtn.textContent = "Download";
-  downloadBtn.disabled = false;
-});
+  downloadBtn.classList.add("download-btn");
 
-headerDiv.appendChild(heading);
-headerDiv.appendChild(downloadBtn);
+  downloadBtn.addEventListener("click", async () => {
+    downloadBtn.textContent = "Downloading...";
+    downloadBtn.disabled = true;
 
-container.appendChild(headerDiv);
+    await downloadReport("yearly");
+
+    downloadBtn.textContent = "Download";
+    downloadBtn.disabled = false;
+  });
+
+  headerDiv.appendChild(heading);
+  headerDiv.appendChild(downloadBtn);
+
+  container.appendChild(headerDiv);
 
   const table = document.createElement("table");
   table.classList.add("report-table");
 
-  // thead
   const thead = document.createElement("thead");
   const theadRow = document.createElement("tr");
   theadRow.classList.add("report-thead-row");
@@ -818,22 +946,18 @@ container.appendChild(headerDiv);
     const tr = document.createElement("tr");
     tr.classList.add(i % 2 === 0 ? "report-row-even" : "report-row-odd");
 
-    // month name
     const tdMonth = document.createElement("td");
     tdMonth.classList.add("report-td", "report-date");
     tdMonth.textContent = monthNames[monthIndex];
 
-    // income
     const tdIncome = document.createElement("td");
     tdIncome.classList.add("report-td", "report-td-right", "report-income");
     tdIncome.textContent = `₹ ${monthIncome.toFixed(2)}`;
 
-    // expense
     const tdExpense = document.createElement("td");
     tdExpense.classList.add("report-td", "report-td-right", "report-expense");
     tdExpense.textContent = `₹ ${monthExpense.toFixed(2)}`;
 
-    // savings
     const tdSavings = document.createElement("td");
     tdSavings.classList.add("report-td", "report-td-right");
     tdSavings.classList.add(
@@ -845,7 +969,6 @@ container.appendChild(headerDiv);
     tbody.appendChild(tr);
   });
 
-  // grand total row
   const grandSavings = grandIncome - grandExpense;
 
   const totalTr = document.createElement("tr");
@@ -879,85 +1002,6 @@ container.appendChild(headerDiv);
   container.appendChild(table);
 }
 
-incomePrevBtn.addEventListener("click", () => {
-  if (incomeCurrentPage > 1) {
-    incomeCurrentPage--;
-    loadData();
-  }
-});
-
-incomeNextBtn.addEventListener("click", () => {
-  if (incomeCurrentPage < incomeTotalPages) {
-    incomeCurrentPage++;
-    loadData();
-  }
-});
-
-expensePrevBtn.addEventListener("click", () => {
-  if (expenseCurrentPage > 1) {
-    expenseCurrentPage--;
-    loadData();
-  }
-});
-
-expenseNextBtn.addEventListener("click", () => {
-  if (expenseCurrentPage < expenseTotalPages) {
-    expenseCurrentPage++;
-    loadData();
-  }
-});
-async function loadNoteByDate() {
-  try {
-    const token = localStorage.getItem("token");
-    const date = formatDate(currentDate);
-    const res = await axios.get(`${BASE_URL}/get-note?date=${date}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const noteTextEl = document.getElementById("note");
-
-    if (res.data && res.data.length > 0) {
-      noteTextEl.value = res.data[0].note;
-    } else {
-      noteTextEl.value = "";
-    }
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-penBtn.addEventListener("click", async () => {
-  const writingPage = document.getElementById("writingPage");
-  PlusBtn.style.display = PlusBtn.style.display === "none" ? "block" : "none";
-  expenseConBar.style.display =expenseConBar.style.display === "none" ? "block" : "none";
-  incomeConBar.style.display =incomeConBar.style.display === "none" ? "block" : "none";
-  writingPage.style.display =writingPage.style.display === "none" ? "flex" : "none";
-
-  await loadNoteByDate();
-});
-
-noteBtn.addEventListener("click", async () => {
-  try {
-    const noteText = document.getElementById("note").value;
-    const token = localStorage.getItem("token");
-    const today = new Date().toISOString().split("T")[0];
-    const res = await axios.post(
-      `${BASE_URL}/create-note`,
-      { noteText, date: today },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
-    const data = res.data;
-    console.log(data);
-  } catch (error) {
-    console.log(error);
-  }
-});
 async function downloadReport(type) {
   try {
     const token = localStorage.getItem("token");
@@ -968,7 +1012,7 @@ async function downloadReport(type) {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
 
     if (res.status === 200) {
@@ -976,7 +1020,7 @@ async function downloadReport(type) {
 
       const a = document.createElement("a");
       a.href = fileUrl;
-      const fileName = fileUrl.split("/").pop(); // get actual file name
+      const fileName = fileUrl.split("/").pop();
       a.download = fileName || `${type}-report.csv`;
       a.click();
     }
@@ -985,3 +1029,4 @@ async function downloadReport(type) {
     alert("Download failed");
   }
 }
+// Report Ends Here

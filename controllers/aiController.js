@@ -13,7 +13,7 @@ const suggestCategory = async (req, res) => {
     }
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash", // use stable model
+      model: "gemini-2.5-flash", 
       contents: `
           You are an expense categorizer.
           Categories:
@@ -31,17 +31,12 @@ const suggestCategory = async (req, res) => {
 
           Expense: ${title}
 
-          
-          
-          
           Answer only one word.
 `,
     });
 
     let category = response.text.trim().toLowerCase();
 
-    // clean output
-    category = category.replace(/[^a-z]/g, "");
 
     res.json({ category });
   } catch (err) {

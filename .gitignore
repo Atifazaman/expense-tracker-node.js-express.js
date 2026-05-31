@@ -1,7 +1,5 @@
-# dependencies
-node_modules/
 
-# env files (VERY IMPORTANT)
+node_modules/
 .env
 
 

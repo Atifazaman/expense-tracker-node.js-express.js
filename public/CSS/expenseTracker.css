@@ -378,7 +378,7 @@ form input,form select{
 }
 
 .list{
-min-height: 150px;
+min-height: 190px;
 }
 li{
     display: grid;
@@ -661,7 +661,7 @@ li button {
 }
 
 .report-thead-row {
-  background: #2c3e50;
+  background: #135650;
   color: #fff;
 }
 
@@ -720,7 +720,7 @@ li button {
 }
 
 .report-total-row {
-  background: #2c3e50;
+  background: #25827a;
   color: #fff;
   font-weight: 500;
 }

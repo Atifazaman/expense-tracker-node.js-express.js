@@ -20,15 +20,14 @@ app.use(compression());
 
 const accessLogStream = fs.createWriteStream(
   path.join(__dirname, "access.log"),
-  { flags: "a" } // append mode
+  { flags: "a" } 
 );
 
-app.use(morgan("dev")); // console
+app.use(morgan("dev")); 
 app.use(morgan("combined", { stream: accessLogStream }));
 
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"))
 
 app.use("/user",userRouter)

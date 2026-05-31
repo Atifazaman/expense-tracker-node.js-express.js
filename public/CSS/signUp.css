@@ -7,7 +7,7 @@
 
 body {
   height: 100vh;
-  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  background: linear-gradient(135deg, #2964e3, #65e5eb);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -59,7 +59,7 @@ input:focus {
 button {
   margin-top: 20px;
   padding: 12px;
-  background: #4facfe;
+  background: #2050b7;
   color: white;
   border: none;
   border-radius: 5px;
@@ -87,7 +87,7 @@ a:hover {
 
 #message {
   text-align: center;
-  margin-top: 15px;
-  color: red;
-  font-size: 14px;
+  margin-top: 50px;
+  color: white;
+  font-size: 20px;
 }

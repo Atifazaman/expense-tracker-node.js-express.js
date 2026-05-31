@@ -43,8 +43,6 @@ const newUser = await userTable.create({
 
 const checkUser = async (req, res) => {
   try {
-    console.log("LOGIN API HIT");
-console.log("REQ BODY:", req.body);
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -62,10 +60,9 @@ console.log("REQ BODY:", req.body);
     if (!user) {
       return res.status(401).json({ message: INVALID_MSG });
     }
-console.log("USER:", user);
-console.log("PASSWORD IN DB:", user.password);
+
     const isMatch = await bcrypt.compare(password.trim(), user.password);
-    console.log("Match:", isMatch);
+   
     if (!isMatch) {
       return res.status(401).json({ message: INVALID_MSG });
     }
@@ -75,7 +72,7 @@ console.log("PASSWORD IN DB:", user.password);
       {
         id: user.id,
         email: user.email,
-         isPremium: user.isPremium
+        isPremium: user.isPremium
       },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
