@@ -114,7 +114,7 @@ const forgotPassword = async (req, res) => {
          expiresAt: new Date(Date.now() + 15 * 60 * 1000) 
       })
 
-    const resetLink = `https://surfer-leggings-lurch.ngrok-free.dev/HTML/reset.html?token=${request.id}`;
+    const resetLink = `http://3.110.225.228/reset.html?token=${request.id}`;
 
     const tranEmailApi = new SibApiV3Sdk.TransactionalEmailsApi();
 
