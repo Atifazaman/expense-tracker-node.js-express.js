@@ -4,7 +4,7 @@ const passwordInput=document.getElementById("password")
 const signUpBtn=document.getElementById("signUpBtn")
 const signUpForm=document.getElementById("signUpForm")
 const message=document.getElementById("message")
-const Base_Url="http://localhost:3000/user"
+const Base_Url="/user"
 
 
 async function addUser(obj){
