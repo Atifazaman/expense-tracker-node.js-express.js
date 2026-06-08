@@ -25,7 +25,7 @@ const createOrder = async (req, res, next) => {
         customer_phone: "8135962614",
       },
   order_meta: {
-  return_url: "https://surfer-leggings-lurch.ngrok-free.dev/payment-success?order_id={order_id}",
+  return_url: "http://3.110.225.228/payment-success?order_id={order_id}",
 },
     };
 
