@@ -26,7 +26,7 @@ const expensePrevBtn = document.getElementById("expensePrevBtn");
 const expenseNextBtn = document.getElementById("expenseNextBtn");
 const expensePageInfo = document.getElementById("expensePageInfo");
 
-const BASE_URL = "http://localhost:3000/expensetracker";
+const BASE_URL = "/expensetracker";
 
 const categoryIcons = {
   food: "🍔",
@@ -514,7 +514,7 @@ titleInput.addEventListener("input", () => {
     if (!title) return;
 
     const res = await axios.get(
-      `http://localhost:3000/ai/suggest-category?title=${title}`,
+      `/ai/suggest-category?title=${title}`,
     );
 
     const aiCategory = res.data.category;
@@ -537,7 +537,7 @@ buyPremiumBtn.addEventListener("click", async () => {
     const token = localStorage.getItem("token");
 
     const res = await axios.post(
-      "http://localhost:3000/payment/create-order",
+      "/payment/create-order",
       {},
       {
         headers: {
@@ -1007,7 +1007,7 @@ async function downloadReport(type) {
     const token = localStorage.getItem("token");
 
     const res = await axios.get(
-      `http://localhost:3000/expensetracker/download-report?filter=${type}&date=${currentDate.getTime()}`,
+      `/expensetracker/download-report?filter=${type}&date=${currentDate.getTime()}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
