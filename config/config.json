@@ -3,7 +3,7 @@
     "username": "root",
     "password": "aaaa",
     "database": "mydailyexpenses",
-    "host": "127.0.0.1",
+    "host": "expense-tracker-db.cf282msgm1rh.ap-south-1.rds.amazonaws.com",
     "dialect": "mysql"
   },
   "test": {

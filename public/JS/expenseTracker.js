@@ -66,12 +66,11 @@ function getLimit() {
 filterType.addEventListener("change", () => {
   const token = localStorage.getItem("token");
   const payload = JSON.parse(atob(token.split(".")[1]));
-  const tempPremium = localStorage.getItem("isPremiumTemp");
+ 
 
   const isPremium =
     payload.isPremium === true ||
-    payload.isPremium === 1 ||
-    tempPremium === "true";
+    payload.isPremium === 1 
 
   const selectedFilter = filterType.value;
 
@@ -151,7 +150,9 @@ function createList(data) {
 // Load Data Starts Here
 async function loadData() {
   try {
+    
     const token = localStorage.getItem("token");
+    console.log(JSON.parse(atob(token.split(".")[1])));
     const limit = getLimit();
     const baseParams = `filter=${currentFilter}&date=${currentDate.getTime()}&search=${searchQuery}`;
 
@@ -248,12 +249,11 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   const payload = JSON.parse(atob(token.split(".")[1]));
-  const tempPremium = localStorage.getItem("isPremiumTemp");
+  
 
   if (
     payload.isPremium === true ||
-    payload.isPremium === 1 ||
-    tempPremium === "true"
+    payload.isPremium === 1 
   ) {
     showPremiumMessage();
 

@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
         paymentSessionId,
         redirectTarget: "_modal",
       }).then(() => {
-        startPolling(orderId); // 🔥 START POLLING
+        startPolling(orderId);
       });
 
     } catch (err) {
@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-// 🔥 POLLING FUNCTION
+
 function startPolling(orderId) {
   const interval = setInterval(async () => {
     try {
@@ -47,15 +47,14 @@ function startPolling(orderId) {
 
       console.log("Checking payment...");
 
-      // 🔥 VERIFY FIRST (updates DB)
-      await axios.get(
+      const verifyRes = await axios.get(
         `http://localhost:3000/payment/verify/${orderId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-
-      // 🔥 GET STATUS
+    
+   
       const res = await axios.get(
         `http://localhost:3000/payment/status/${orderId}`,
         {
@@ -74,16 +73,19 @@ function startPolling(orderId) {
         document.getElementById("buyPremiumBtn").style.display = "none";
         document.getElementById("premiumMessage").style.display = "block";
 
-        localStorage.setItem("isPremiumTemp", "true");
+        
       }
 
       if (status === "FAILED") {
         clearInterval(interval);
         alert("❌ Payment Failed");
       }
-
+  if (verifyRes.data.token) {
+  localStorage.setItem("token", verifyRes.data.token);
+  window.location.reload();
+}
     } catch (err) {
       console.log("ERROR:", err.response?.data || err.message);
     }
-  }, 3000); // every 3 sec
+  }, 3000); 
 }

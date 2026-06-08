@@ -2,7 +2,7 @@ const winston = require("winston");
 const path = require("path");
 
 const logger = winston.createLogger({
-  level: "error", // 🔥 only log errors (important)
+  level: "error", 
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.json()

@@ -1,6 +1,9 @@
 const { Cashfree, CFEnvironment } = require("cashfree-pg");
 const orderTable = require("../Models/orderModel");
 const userTable = require("../Models/usersTable")
+const sequelize = require("../Utils/db-connection");
+
+const jwt = require("jsonwebtoken");
 
 const cashfree = new Cashfree(
   CFEnvironment.SANDBOX,
@@ -8,7 +11,7 @@ const cashfree = new Cashfree(
   process.env.CASHFREE_SECRET_KEY
 );
 
-// ✅ CREATE ORDER
+
 const createOrder = async (req, res, next) => {
   try {
     const orderId = "order_" + Date.now();
@@ -21,9 +24,9 @@ const createOrder = async (req, res, next) => {
         customer_id: `user_${req.user.id}`,
         customer_phone: "8135962614",
       },
-      order_meta: {
-        return_url: "http://localhost:3000/payment-success?order_id={order_id}",
-      },
+  order_meta: {
+  return_url: "https://surfer-leggings-lurch.ngrok-free.dev/payment-success?order_id={order_id}",
+},
     };
 
     const response = await cashfree.PGCreateOrder(request);
@@ -42,37 +45,70 @@ const createOrder = async (req, res, next) => {
   }
 };
 
-// ✅ VERIFY + UPDATE DB
+
 const verifyPayment = async (req, res, next) => {
+  let t;
+
   try {
     const { order_id } = req.params;
 
-    console.log("VERIFY CALLED:", order_id);
-
     const response = await cashfree.PGOrderFetchPayments(order_id);
 
-    console.log("FULL RESPONSE:", JSON.stringify(response.data, null, 2));
-
-      const paymentStatus = response.data?.[0]?.payment_status;
-
-    console.log("STATUS FROM CASHFREE:", paymentStatus);
+    const paymentStatus = response.data?.[0]?.payment_status;
 
     if (paymentStatus === "SUCCESS" || paymentStatus === "PAID") {
-      const result = await orderTable.update(
+
+      t = await sequelize.transaction();
+
+      await orderTable.update(
         { status: "SUCCESS" },
-        { where: { orderId: order_id } }
+        {
+          where: { orderId: order_id },
+          transaction: t
+        }
       );
 
-      console.log("UPDATE RESULT:", result);
+      const order = await orderTable.findOne({
+        where: { orderId: order_id },
+        transaction: t
+      });
 
-      const order = await orderTable.findOne({ where: { orderId: order_id } });
-
-      if (order) {
-        await userTable.update(
-          { isPremium: true },
-          { where: { id: order.userId } }
-        );
+      if (!order) {
+        await t.rollback();
+        return res.status(404).json({
+          message: "Order not found"
+        });
       }
+
+      await userTable.update(
+        { isPremium: true },
+        {
+          where: { id: order.userId },
+          transaction: t
+        }
+      );
+
+     
+      const user = await userTable.findByPk(order.userId, {
+  transaction: t
+});
+
+console.log("USER PREMIUM:", user.isPremium);
+
+const token = jwt.sign(
+  {
+    id: user.id,
+    email: user.email,
+    isPremium: user.isPremium,
+  },
+  process.env.JWT_SECRET,
+  { expiresIn: "1h" }
+);
+ await t.commit();
+return res.json({
+  success: true,
+  token,
+});
     }
 
     if (paymentStatus === "FAILED") {
@@ -85,12 +121,16 @@ const verifyPayment = async (req, res, next) => {
     res.json({ success: true });
 
   } catch (err) {
-    console.log("VERIFY ERROR:", err);
+
+    if (t) {
+      await t.rollback();
+    }
+
     next(err);
   }
 };
 
-// ✅ GET STATUS
+
 const getPaymentStatus = async (req, res, next) => {
   try {
     const orderId = req.params.order_id;
