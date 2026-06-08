@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const token = localStorage.getItem("token");
 
       const res = await axios.post(
-        "http://localhost:3000/payment/create-order",
+        "/payment/create-order",
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -48,7 +48,7 @@ function startPolling(orderId) {
       console.log("Checking payment...");
 
       const verifyRes = await axios.get(
-        `http://localhost:3000/payment/verify/${orderId}`,
+        `/payment/verify/${orderId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -56,7 +56,7 @@ function startPolling(orderId) {
     
    
       const res = await axios.get(
-        `http://localhost:3000/payment/status/${orderId}`,
+        `/payment/status/${orderId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
